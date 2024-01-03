@@ -1,0 +1,454 @@
+//*****************************************************************************************************
+//
+//        File:                   sortCompares.cpp
+//
+//        Student:                Noah Thomas
+//
+//        Assignment:             Program #10
+//
+//        Course Name:            Data Structures II
+//
+//        Course Number:          COSC 3100-01
+//
+//        Due:                    May 3rd
+//
+//
+//        This program calculates the amount of compares and copies from list of values using multiple 
+//        sorts.
+//
+//        Other files required:
+//            1.    Results.h
+//
+//*****************************************************************************************************
+
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
+using namespace std;
+
+#include "results.h"
+
+//*****************************************************************************************************
+
+void getData(int list[], int size, const char filename[]);
+void insertSort(int list[], int size, int& comp, int& cpy);
+void selectSort(int list[], int size, int& comp, int& cpy);
+void bubbleSort(int list[], int size, int& comp, int& cpy);
+void shellSort(int list[], int size, int& comp, int& cpy);
+void heapSort(int list[], int size, int& comp, int& cpy);
+void _siftUp(int list[], int size, int child, int& comp, int& cpy);
+void _siftDown(int list[], int size, int parent, int& comp, int& cpy);
+void quickSort(int list[], int size, int& comp, int& cpy);
+void _quickSort(int list[], int left, int right, int& comp, int& cpy);
+void putMedianLeft(int list[], int left, int right, int& comp, int& cpy);
+int partition(int list[], int left, int right, int& comp, int& cpy);
+void calcResults(Results& result);
+void displayResults(Results iResults, Results sResults, Results bResults, Results shResults,
+    Results hResults, Results qResults);
+
+//*****************************************************************************************************
+
+int main()
+{
+    int ordered[1000],
+        unordered[1000],
+        reversed[1000];
+
+    Results iResults,
+        sResults,
+        bResults,
+        shResults,
+        hResults,
+        qResults;
+
+    getData(ordered, 1000, "ordered.txt");
+    getData(unordered, 1000, "unordered.txt");
+    getData(reversed, 1000, "reversed.txt");
+    insertSort(ordered, 1000, iResults.ordCompares, iResults.ordCopies);
+    insertSort(unordered, 1000, iResults.unOrdCompares, iResults.unOrdCopies);
+    insertSort(reversed, 1000, iResults.revOrdCompares, iResults.revOrdCopies);
+    calcResults(iResults);
+
+    getData(ordered, 1000, "ordered.txt");
+    getData(unordered, 1000, "unordered.txt");
+    getData(reversed, 1000, "reversed.txt");
+    selectSort(ordered, 1000, sResults.ordCompares, sResults.ordCopies);
+    selectSort(unordered, 1000, sResults.unOrdCompares, sResults.unOrdCopies);
+    selectSort(reversed, 1000, sResults.revOrdCompares, sResults.revOrdCopies);
+    calcResults(sResults);
+
+    getData(ordered, 1000, "ordered.txt");
+    getData(unordered, 1000, "unordered.txt");
+    getData(reversed, 1000, "reversed.txt");
+    bubbleSort(ordered, 1000, bResults.ordCompares, bResults.ordCopies);
+    bubbleSort(unordered, 1000, bResults.unOrdCompares, bResults.unOrdCopies);
+    bubbleSort(reversed, 1000, bResults.revOrdCompares, bResults.revOrdCopies);
+    calcResults(bResults);
+
+    getData(ordered, 1000, "ordered.txt");
+    getData(unordered, 1000, "unordered.txt");
+    getData(reversed, 1000, "reversed.txt");
+    shellSort(ordered, 1000, shResults.ordCompares, shResults.ordCopies);
+    shellSort(unordered, 1000, shResults.unOrdCompares, shResults.unOrdCopies);
+    shellSort(reversed, 1000, shResults.revOrdCompares, shResults.revOrdCopies);
+    calcResults(shResults);
+    
+    getData(ordered, 1000, "ordered.txt");
+    getData(unordered, 1000, "unordered.txt");
+    getData(reversed, 1000, "reversed.txt");
+    heapSort(ordered, 1000, hResults.ordCompares, hResults.ordCopies);
+    heapSort(unordered, 1000, hResults.unOrdCompares, hResults.unOrdCopies);
+    heapSort(reversed, 1000, hResults.revOrdCompares, hResults.revOrdCopies);
+    calcResults(hResults);
+
+    getData(ordered, 1000, "ordered.txt");
+    getData(unordered, 1000, "unordered.txt");
+    getData(reversed, 1000, "reversed.txt");
+    quickSort(ordered, 1000, qResults.ordCompares, qResults.ordCopies);
+    quickSort(unordered, 1000, qResults.unOrdCompares, qResults.unOrdCopies);
+    quickSort(reversed, 1000, qResults.revOrdCompares, qResults.revOrdCopies);
+    calcResults(qResults);
+    
+    displayResults(iResults, sResults, bResults, shResults, hResults, qResults);
+}
+//*****************************************************************************************************
+
+void getData(int list[], int size, const char filename[])
+{
+    int counter = 0;
+
+    ifstream readFile;
+    readFile.open(filename);
+
+    while ((counter < size) && (readFile >> list[counter]))
+    {
+        counter++;
+    }
+
+    readFile.close();
+}
+
+//*****************************************************************************************************
+
+void insertSort(int list[], int size, int& comp, int& cpy)
+{
+    int hold,
+        j;
+
+    for (int i = 1; i < size; i++)
+    {
+        hold = list[i];
+        cpy++;
+
+        for (j = i - 1; (j >= 0) && (++comp) && hold < list[j]; j--)
+        {
+            list[j + 1] = list[j];
+            cpy++;
+        }
+
+        list[j + 1] = hold;
+        cpy++;
+    }
+
+}
+
+//*****************************************************************************************************
+
+void selectSort(int list[], int size, int& comp, int& cpy)
+{
+    int minIndex = 0;
+
+    for (int i = 0; i < size - 1; i++)
+    {
+        minIndex = i;
+
+        for (int j = i + 1; j < size; j++)
+        {
+            comp++;
+            if (list[j] < list[minIndex])
+            {
+                minIndex = j;
+            }
+
+        }
+
+        swap(list[minIndex], list[i]);
+        cpy = cpy + 3;
+    }
+}
+
+//*****************************************************************************************************
+
+void bubbleSort(int list[], int size, int& comp, int& cpy)
+{
+    bool didswap = true;
+
+    for (int i = 0; (i < size - 1) && (didswap); i++)
+    {
+        didswap = false;
+
+        for (int j = size - 1; j > i; j--)
+        {
+            if ((++comp) && (list[j] < list[j - 1]))
+            {
+                swap(list[j], list[j - 1]);
+                cpy = cpy + 3;
+                didswap = true;
+            }
+
+        }
+
+    }
+
+}
+
+//*****************************************************************************************************
+
+void shellSort(int list[], int size, int& comp, int& cpy)
+{
+    int hold, j;
+
+    for (int gap = size / 2; gap > 10; gap = gap / 2)
+    {
+        if (gap % 2 == 0)
+        {
+            gap++;
+        }
+
+        for (int i = gap; i < size; i++)
+        {
+            hold = list[i];
+            cpy++;
+
+            for (j = i - gap; (j >= 0) && (++comp) && (hold < list[j]); j = j - gap)
+            {
+                list[j + gap] = list[j];
+                cpy++;
+            }
+
+            list[j + gap] = hold;
+            cpy++;
+        }
+
+    }
+
+    insertSort(list, size, comp, cpy);
+}
+
+//*****************************************************************************************************
+
+void heapSort(int list[], int size, int& comp, int& cpy)
+{
+    for (int i = 1; i < size; i++)
+    {
+        _siftUp(list, size, i, comp, cpy);
+    }
+
+    for (int i = size - 1; i > 0; i--)
+    {
+        swap(list[0], list[i]);
+        cpy = cpy + 3;
+        _siftDown(list, i, 0, comp, cpy);
+    }
+
+}
+
+//*****************************************************************************************************
+
+void _siftUp(int list[], int size, int child, int& comp, int& cpy)
+{
+    int parent;
+
+    if (child > 0)
+    {
+        parent = ((child - 1) / 2);
+
+        if ((++comp) && (list[child] > list[parent]))
+        {
+            swap(list[child], list[parent]);
+            cpy = cpy + 3;
+            _siftUp(list, size, parent, comp, cpy);
+        }
+
+    }
+
+}
+
+//*****************************************************************************************************
+
+void _siftDown(int list[], int size, int parent, int& comp, int& cpy)
+{
+    int child;
+    child = ((parent * 2) + 1);
+
+    if (child < size)
+    {
+        if (((child + 1) < size) && (++comp) && (list[child + 1]) > list[child])
+        {
+            child++;
+        }
+
+        if ((++comp) && list[parent] < list[child])
+        {
+            swap(list[parent], list[child]);
+            cpy = cpy + 3;
+            _siftDown(list, size, child, comp, cpy);
+        }
+
+    }
+}
+
+//*****************************************************************************************************
+
+void quickSort(int list[], int size, int& comp, int& cpy)
+{
+    _quickSort(list, 0, size - 1, comp, cpy);
+    insertSort(list, size, comp, cpy);
+}
+
+//*****************************************************************************************************
+
+void _quickSort(int list[], int left, int right, int& comp, int& cpy)
+{
+    int pivotPt;
+
+    if ((right - left + 1) >= 11)
+    {
+        putMedianLeft(list, left, right, comp, cpy);
+        pivotPt = partition(list, left, right, comp, cpy);
+        _quickSort(list, left, pivotPt - 1, comp, cpy);
+        _quickSort(list, pivotPt + 1, right, comp, cpy);
+
+    }
+}
+
+//*****************************************************************************************************
+
+void putMedianLeft(int list[], int left, int right, int& comp, int& cpy)
+{
+    int mid = (left + right) / 2;
+
+    if (list[left] < list[mid])
+    {
+        swap(list[left], list[mid]);
+        cpy = cpy + 3;
+    }
+
+    if (list[right] < list[mid])
+    {
+        swap(list[right], list[mid]);
+        cpy = cpy + 3;
+    }
+
+    if (list[left] > list[right])
+    {
+        swap(list[left], list[right]);
+        cpy = cpy + 3;
+    }
+    
+    comp = comp + 3;
+}
+
+//*****************************************************************************************************
+
+int partition(int list[], int left, int right, int& comp, int& cpy)
+{
+    int lte = left + 1;
+    int gt = right;
+
+    while (lte <= gt)
+    {
+        while ((++comp) && (list[lte] <= list[left]))
+        {
+            lte++;
+        }
+
+        while ((++comp) && (list[gt] > list[left]))
+        {
+            gt--;
+        }
+
+        if (lte < gt)
+        {
+            swap(list[lte], list[gt]);
+            cpy = cpy + 3;
+            gt--;
+            lte++;
+        }
+
+    }
+
+    swap(list[left], list[gt]);
+    cpy = cpy + 3;
+
+    return gt;
+}
+
+//*****************************************************************************************************
+
+void calcResults(Results& result)
+{
+    result.avgCompares = ((result.ordCompares + result.revOrdCompares + result.unOrdCompares) / 3);
+    result.avgCopies = ((result.ordCopies + result.revOrdCopies + result.unOrdCopies) / 3);
+}
+
+//*****************************************************************************************************
+
+void displayResults(Results iResults, Results sResults, Results bResults, Results shResults,
+    Results hResults, Results qResults)
+{
+    cout << right << setw(100) << "Compares / Copies" << endl;
+    cout << left << setw(42) << "Sorts:" << left << setw(42) << "Ordered" << left << setw(40)
+        << "UnOrdered" << left << setw(40) << "Reversed" << "Average" << endl;
+
+    cout << left << setw(41) << "Insertion:" 
+        << iResults.ordCompares << " / " << left << setw(34) << iResults.ordCopies
+        << iResults.unOrdCompares << " / " << left << setw(30) << iResults.unOrdCopies
+        << iResults.revOrdCompares << " / " << left << setw(31) << iResults.revOrdCopies 
+        << iResults.avgCompares << " / " << iResults.avgCopies << endl;
+
+    cout << left << setw(41) << "Selection:"
+        << sResults.ordCompares << " / " << left << setw(31) << sResults.ordCopies
+        << sResults.unOrdCompares << " / " << left << setw(30) << sResults.unOrdCopies
+        << sResults.revOrdCompares << " / " << left << setw(31) << sResults.revOrdCopies
+        << sResults.avgCompares << " / " << sResults.avgCopies << endl;
+
+    cout << left << setw(41) << "Bubble:"
+        << bResults.ordCompares << " / " << left << setw(34) << bResults.ordCopies
+        << bResults.unOrdCompares << " / " << left << setw(30) << bResults.unOrdCopies
+        << bResults.revOrdCompares << " / " << left << setw(31) << bResults.revOrdCopies
+        << bResults.avgCompares << " / " << bResults.avgCopies << endl;
+
+    cout << left << setw(41) << "Shell:"
+        << shResults.ordCompares << " / " << left << setw(34) << shResults.ordCopies
+        << shResults.unOrdCompares << " / " << left << setw(31) << shResults.unOrdCopies
+        << shResults.revOrdCompares << " / " << left << setw(32) << shResults.revOrdCopies
+        << shResults.avgCompares << " / " << shResults.avgCopies << endl;
+
+    cout << left << setw(41) << "Heap:"
+        << hResults.ordCompares << " / " << left << setw(33) << hResults.ordCopies
+        << hResults.unOrdCompares << " / " << left << setw(31) << hResults.unOrdCopies
+        << hResults.revOrdCompares << " / " << left << setw(32) << hResults.revOrdCopies
+        << hResults.avgCompares << " / " << hResults.avgCopies << endl;
+
+    cout << left << setw(41) << "Quick:"
+        << qResults.ordCompares << " / " << left << setw(34) << qResults.ordCopies
+        << qResults.unOrdCompares << " / " << left << setw(32) << qResults.unOrdCopies
+        << qResults.revOrdCompares << " / " << left << setw(33) << qResults.revOrdCopies
+        << qResults.avgCompares << " / " << qResults.avgCopies << endl;
+
+}
+
+//*****************************************************************************************************
+
+/*
+ Compares / Copies
+Sorts:                                    Ordered                                   UnOrdered                               Reversed                                Average
+Insertion:                               999 / 1998                              257314 / 258317                        499500 / 501498                         252604 / 253937
+Selection:                               499500 / 2997                           499500 / 2997                          499500 / 2997                           499500 / 2997
+Bubble:                                  999 / 0                                 499065 / 768957                        499500 / 1498500                        333188 / 755819
+Shell:                                   6013 / 12026                             20949 / 27513                          13781 / 20780                           13581 / 20106
+Heap:                                    22462 / 47922                            17194 / 28575                          15965 / 24948                           18540 / 33815
+Quick:                                   8387 / 2760                              10983 / 9179                            8387 / 4260                             9252 / 5399
+*/
